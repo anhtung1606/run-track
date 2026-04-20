@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🏃 RunTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -184,6 +184,7 @@
     font-family: var(--mono); font-size: .72rem; font-weight: 500;
     color: var(--text-dim); display: flex; align-items: center; justify-content: space-between;
   }
+  .day-dow { display: none; }
   .today-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--today); display: none; flex-shrink: 0; }
   .today .today-dot { display: block; }
 
@@ -239,13 +240,84 @@
   #toast.success { border-color: var(--accent); color: #86efac; }
   #toast.error { border-color: var(--warn); color: #fca5a5; }
 
+  /* ── MOBILE: TABLET ── */
+  @media (max-width: 900px) {
+    .calendar { gap: 4px; }
+    .day-cell { min-height: 110px; padding: 6px; }
+    .day-cell input { font-size: .65rem; padding: 4px 6px; }
+  }
+
+  /* ── MOBILE: PHONE ── */
   @media (max-width: 600px) {
-    .day-cell { min-height: 96px; padding: 6px; }
-    .day-cell input { font-size: .63rem; }
+    #app { padding: 16px 12px 60px; }
     .logo { font-size: 1.3rem; }
-    .stat-value { font-size: 1.15rem; }
+    header { margin-bottom: 18px; }
+
+    /* Stats */
     #stats-bar { gap: 8px; }
-    .stat-card { padding: 11px 14px; }
+    .stat-card { padding: 10px 12px; min-width: 100px; gap: 8px; }
+    .stat-icon { font-size: 1.1rem; }
+    .stat-value { font-size: 1.1rem; }
+    .stat-label { font-size: .6rem; }
+
+    /* Streak */
+    .streak-badge { padding: 7px 14px; gap: 7px; }
+    .streak-badge .count { font-size: 1.3rem; }
+    .streak-badge .flame { font-size: 1.1rem; }
+
+    /* Month nav */
+    .month-nav { gap: 10px; margin-bottom: 10px; }
+    .month-nav h2 { font-size: 1.1rem; }
+
+    /* Calendar → list layout on mobile */
+    .cal-header { display: none; }
+    .calendar {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .day-cell.empty { display: none; }
+    .day-cell {
+      min-height: auto; padding: 12px 14px;
+      border-radius: 10px; gap: 8px;
+    }
+    .day-num { font-size: .8rem; font-weight: 600; margin-bottom: 2px; }
+    .day-dow { display: inline; font-weight: 700; color: var(--text); }
+    .day-cell input[type="text"],
+    .day-cell input[type="number"] {
+      font-size: .82rem; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .input-row { gap: 8px; }
+    .input-row input { min-width: 0; }
+    .complete-row { margin-top: 6px; gap: 10px; }
+    .complete-row label { font-size: .78rem; }
+    .chk { width: 20px; height: 20px; border-radius: 5px; }
+    .chk:checked::after { font-size: .7rem; }
+    .rest-label { font-size: .72rem; padding: 8px 0; }
+
+    /* Legend */
+    .legend { gap: 12px; margin-top: 16px; padding-top: 14px; }
+    .legend-item { font-size: .68rem; }
+
+    /* Config */
+    #config-panel { padding: 14px; gap: 10px; }
+    .cfg-group { min-width: 100%; }
+    .cfg-group input { font-size: .78rem; padding: 10px 12px; }
+    .btn { padding: 10px 16px; font-size: .82rem; }
+
+    /* Status bar */
+    #status-bar { font-size: .72rem; flex-wrap: wrap; gap: 8px; }
+
+    /* Toast */
+    #toast { bottom: 12px; right: 12px; left: 12px; max-width: none; font-size: .75rem; }
+  }
+
+  /* ── MOBILE: VERY SMALL ── */
+  @media (max-width: 380px) {
+    #app { padding: 12px 8px 50px; }
+    .stat-card { flex: 1 1 100%; }
+    .day-cell { padding: 10px 12px; }
+    .day-cell input[type="text"],
+    .day-cell input[type="number"] { font-size: .78rem; padding: 7px 9px; }
   }
 </style>
 </head>
@@ -635,9 +707,11 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = 'day-cell' + getCellClass(dateStr, appData.dates[dateStr]);
     cell.dataset.date = dateStr;
+    const dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dow = new Date(currentYear, currentMonth-1, day).getDay();
     cell.innerHTML = `
       <div class="day-num">
-        <span>${day}</span>
+        <span><span class="day-dow">${dowNames[dow]} </span>${day}</span>
         <span class="today-dot"></span>
       </div>
       <input type="text"   placeholder="Workout type" value="${d.workout||''}"
