@@ -1,1 +1,162 @@
-{}
+{
+  "dates": {
+    "2026-04-01": {
+      "workout": "Easy",
+      "description": "6km easy + 4 strides",
+      "pace": "7:00",
+      "distance": 6
+    },
+    "2026-04-03": {
+      "workout": "Tempo",
+      "description": "2km warmup + 3km tempo + cooldown",
+      "pace": "6:20",
+      "distance": 6
+    },
+    "2026-04-05": {
+      "workout": "Long run",
+      "description": "8km easy",
+      "pace": "7:10",
+      "distance": 8
+    },
+    "2026-04-07": {
+      "workout": "Easy",
+      "description": "7km easy + 6 strides",
+      "pace": "7:00",
+      "distance": 7
+    },
+    "2026-04-09": {
+      "workout": "Interval",
+      "description": "2km warmup + 4x800m (6:00) + cooldown",
+      "pace": "6:00",
+      "distance": 7
+    },
+    "2026-04-12": {
+      "workout": "Long run",
+      "description": "9km easy",
+      "pace": "7:10",
+      "distance": 9
+    },
+    "2026-04-14": {
+      "workout": "Easy",
+      "description": "8km easy + strides",
+      "pace": "7:00",
+      "distance": 8
+    },
+    "2026-04-16": {
+      "workout": "Tempo",
+      "description": "2km warmup + 4km tempo + cooldown",
+      "pace": "6:15",
+      "distance": 7
+    },
+    "2026-04-19": {
+      "workout": "Long run",
+      "description": "10km easy",
+      "pace": "7:10",
+      "distance": 10
+    },
+    "2026-04-21": {
+      "workout": "Easy",
+      "description": "6km easy",
+      "pace": "7:00",
+      "distance": 6
+    },
+    "2026-04-23": {
+      "workout": "Interval",
+      "description": "2km warmup + 5x800m + cooldown",
+      "pace": "5:50",
+      "distance": 8
+    },
+    "2026-04-26": {
+      "workout": "Test run",
+      "description": "8km giữ HR ~156",
+      "pace": "6:15",
+      "distance": 8
+    },
+    "2026-04-28": {
+      "workout": "Recovery",
+      "description": "5km rất nhẹ",
+      "pace": "7:30",
+      "distance": 5
+    },
+    "2026-04-30": {
+      "workout": "Easy",
+      "description": "6km easy + strides",
+      "pace": "7:00",
+      "distance": 6
+    },
+    "2026-05-02": {
+      "workout": "Easy",
+      "description": "7km easy + strides",
+      "pace": "6:50",
+      "distance": 7
+    },
+    "2026-05-05": {
+      "workout": "Tempo",
+      "description": "2km warmup + 4km tempo",
+      "pace": "6:10",
+      "distance": 7
+    },
+    "2026-05-07": {
+      "workout": "Long run",
+      "description": "10km easy",
+      "pace": "7:00",
+      "distance": 10
+    },
+    "2026-05-09": {
+      "workout": "Easy",
+      "description": "6km easy",
+      "pace": "6:50",
+      "distance": 6
+    },
+    "2026-05-12": {
+      "workout": "Interval",
+      "description": "5x800m pace 5:50",
+      "pace": "5:50",
+      "distance": 8
+    },
+    "2026-05-14": {
+      "workout": "Long run",
+      "description": "11km easy",
+      "pace": "7:00",
+      "distance": 11
+    },
+    "2026-05-16": {
+      "workout": "Easy",
+      "description": "7km easy + strides",
+      "pace": "6:45",
+      "distance": 7
+    },
+    "2026-05-19": {
+      "workout": "Tempo",
+      "description": "5km tempo",
+      "pace": "6:05",
+      "distance": 7
+    },
+    "2026-05-21": {
+      "workout": "Long run",
+      "description": "12km easy",
+      "pace": "7:00",
+      "distance": 12
+    },
+    "2026-05-23": {
+      "workout": "Easy",
+      "description": "6km recovery",
+      "pace": "7:10",
+      "distance": 6
+    },
+    "2026-05-26": {
+      "workout": "Interval",
+      "description": "6x800m pace 5:45",
+      "pace": "5:45",
+      "distance": 9
+    },
+    "2026-05-28": {
+      "workout": "Test run",
+      "description": "10km giữ HR thấp",
+      "pace": "6:00",
+      "distance": 10
+    }
+  },
+  "streak": 0,
+  "last_completed_date": null
+}
