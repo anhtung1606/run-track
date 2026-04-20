@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏃 RunTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f5f7fa;
+    --border: #dde3ec;
+    --accent: #16a34a;
+    --accent2: #0284c7;
+    --warn: #dc2626;
+    --rest: #cbd5e1;
+    --text: #1e293b;
+    --text-dim: #64748b;
+    --today: #f59e0b;
+    --radius: 12px;
+    --streak-glow: 0 4px 20px #16a34a22;
+    --font: 'Inter', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(100,116,139,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,116,139,.08) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 28px 18px 80px; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 14px;
+  }
+  .logo {
+    font-size: 1.65rem; font-weight: 800; letter-spacing: -0.8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* ── STREAK BADGE ── */
+  .streak-badge {
+    display: flex; align-items: center; gap: 9px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 40px; padding: 9px 18px;
+    box-shadow: var(--streak-glow);
+  }
+  .streak-badge .flame { font-size: 1.4rem; animation: flicker 1.3s ease-in-out infinite; }
+  @keyframes flicker { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18) rotate(-6deg)} }
+  .streak-badge .count { font-family: var(--mono); font-size: 1.6rem; color: var(--accent); font-weight: 500; }
+  .streak-badge .label { font-size: .7rem; color: var(--text-dim); line-height: 1.3; font-weight: 500; }
+
+  /* ── STATS BAR ── */
+  #stats-bar {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px; flex: 1; min-width: 140px;
+    transition: border-color .2s, transform .15s;
+  }
+  .stat-card:hover { border-color: #94a3b8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.07); }
+  .stat-icon { font-size: 1.4rem; }
+  .stat-value { font-family: var(--mono); font-size: 1.45rem; color: var(--accent2); font-weight: 500; line-height: 1; }
+  .stat-label { font-size: .66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; margin-top: 3px; font-weight: 600; }
+  .stat-card.km .stat-value { color: var(--accent); }
+  .stat-card.days .stat-value { color: #7c3aed; }
+
+  /* ── GITHUB CONFIG ── */
+  #config-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    margin-bottom: 22px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+  }
+  #config-panel.hidden { display: none; }
+  .cfg-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+  .cfg-group label { font-size: .68rem; color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+  .cfg-group input {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 11px;
+    color: var(--text); font-family: var(--mono); font-size: .8rem;
+    outline: none; transition: border-color .2s;
+  }
+  .cfg-group input:focus { border-color: var(--accent); }
+  .btn {
+    padding: 9px 18px; border-radius: 8px; border: none;
+    cursor: pointer; font-family: var(--font); font-weight: 700;
+    font-size: .82rem; transition: all .2s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00e87a; box-shadow: 0 0 16px #00ff8850; }
+  .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── STATUS BAR ── */
+  #status-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px; font-size: .78rem; color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  #status-bar .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--rest); transition: background .3s; flex-shrink: 0;
+  }
+  #status-bar .dot.synced { background: var(--accent); box-shadow: 0 0 7px var(--accent); }
+  #status-bar .dot.loading { background: var(--today); animation: pulse 1s infinite; }
+  #status-bar .dot.error { background: var(--warn); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* ── MONTH NAV ── */
+  .month-nav {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .month-nav h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -.4px; }
+  .month-tabs { display: flex; gap: 6px; }
+  .month-tab {
+    padding: 5px 15px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); cursor: pointer;
+    font-family: var(--font); font-weight: 600; font-size: .8rem; transition: all .2s;
+  }
+  .month-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* ── CALENDAR ── */
+  .cal-header {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px; margin-bottom: 5px;
+  }
+  .cal-dow {
+    text-align: center; font-size: .66rem; color: var(--text-dim);
+    font-family: var(--mono); padding: 4px 0; letter-spacing: .1em;
+  }
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+
+  /* ── DAY CELL ── */
+  .day-cell {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px; min-height: 132px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color .2s, transform .15s;
+    position: relative; overflow: hidden;
+  }
+  .day-cell::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: transparent; transition: background .3s;
+  }
+  .day-cell.completed { border-color: var(--accent); background: #f0fdf4; }
+  .day-cell.completed::before { background: var(--accent); }
+  .day-cell.rest-day { border-color: var(--rest); background: #f8fafc; opacity: .85; }
+  .day-cell.missed { border-color: var(--warn); background: #fff5f5; }
+  .day-cell.missed::before { background: var(--warn); }
+  .day-cell.today { border-color: var(--today); box-shadow: 0 0 0 2px #f59e0b28; background: #fffbeb; }
+  .day-cell.today::before { background: var(--today); }
+  .day-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
+  .day-cell:hover:not(.empty) { transform: translateY(-2px); border-color: #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+  .day-cell.completed:hover { border-color: var(--accent); box-shadow: 0 4px 12px #16a34a18; }
+  .day-cell.missed:hover { border-color: var(--warn); }
+
+  .day-num {
+    font-family: var(--mono); font-size: .72rem; font-weight: 500;
+    color: var(--text-dim); display: flex; align-items: center; justify-content: space-between;
+  }
+  .today-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--today); display: none; flex-shrink: 0; }
+  .today .today-dot { display: block; }
+
+  .day-cell input[type="text"],
+  .day-cell input[type="number"] {
+    background: var(--surface2); border: 1px solid transparent;
+    border-radius: 6px; padding: 3px 7px; color: var(--text);
+    font-family: var(--font); font-size: .7rem; width: 100%;
+    outline: none; transition: border-color .2s, background .2s;
+  }
+  .day-cell input:focus { border-color: var(--accent); background: #f0fdf4; }
+  .day-cell input::placeholder { color: #c1ccd9; }
+
+  .input-row { display: flex; gap: 4px; }
+  .input-row input { flex: 1; }
+
+  .rest-label {
+    font-size: .62rem; color: var(--text-dim); text-align: center;
+    margin-top: auto; letter-spacing: .12em; font-family: var(--mono); font-weight: 500;
+  }
+
+  .complete-row { display: flex; align-items: center; gap: 6px; margin-top: auto; }
+  .complete-row label { font-size: .65rem; color: var(--text-dim); cursor: pointer; user-select: none; font-weight: 500; }
+  .chk {
+    appearance: none; width: 15px; height: 15px; border: 1px solid var(--border);
+    border-radius: 4px; cursor: pointer; position: relative; flex-shrink: 0; transition: all .2s;
+  }
+  .chk:checked { background: var(--accent); border-color: var(--accent); }
+  .chk:checked::after {
+    content: '✓'; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-52%); font-size: .6rem; color: #000; font-weight: 700;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border);
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: .72rem; color: var(--text-dim); font-weight: 500; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 3px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 22px; right: 22px;
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 10px; padding: 11px 18px;
+    font-size: .78rem; font-family: var(--mono); color: #f1f5f9;
+    z-index: 1000; transform: translateY(70px); opacity: 0;
+    transition: all .3s cubic-bezier(.34,1.56,.64,1); max-width: 280px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--accent); color: #86efac; }
+  #toast.error { border-color: var(--warn); color: #fca5a5; }
+
+  @media (max-width: 600px) {
+    .day-cell { min-height: 96px; padding: 6px; }
+    .day-cell input { font-size: .63rem; }
+    .logo { font-size: 1.3rem; }
+    .stat-value { font-size: 1.15rem; }
+    #stats-bar { gap: 8px; }
+    .stat-card { padding: 11px 14px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">🏃 RunTrack</div>
+    <div class="header-right">
+      <div class="streak-badge">
+        <span class="flame">🔥</span>
+        <span class="count" id="streak-count">0</span>
+        <span class="label">day<br>streak</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS BAR -->
+  <div id="stats-bar">
+    <div class="stat-card km">
+      <span class="stat-icon">📍</span>
+      <div>
+        <div class="stat-value"><span id="total-km">0.0</span> km</div>
+        <div class="stat-label">Total this month</div>
+      </div>
+    </div>
+    <div class="stat-card days">
+      <span class="stat-icon">✅</span>
+      <div>
+        <div class="stat-value" id="completed-days">0</div>
+        <div class="stat-label">Sessions done</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📊</span>
+      <div>
+        <div class="stat-value" id="avg-km">0.0</div>
+        <div class="stat-label">Avg km / session</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GITHUB CONFIG -->
+  <div id="config-panel">
+    <div class="cfg-group">
+      <label>GitHub Token</label>
+      <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxx" autocomplete="off">
+    </div>
+    <div class="cfg-group">
+      <label>Username</label>
+      <input type="text" id="cfg-user" placeholder="your-username">
+    </div>
+    <div class="cfg-group">
+      <label>Repo Name</label>
+      <input type="text" id="cfg-repo" placeholder="running-data">
+    </div>
+    <div class="cfg-group">
+      <label>File Path</label>
+      <input type="text" id="cfg-file" placeholder="data.json" value="data.json">
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">💾 Save</button>
+    <button class="btn btn-ghost" onclick="toggleConfig()">✕</button>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="status-bar">
+    <div class="dot" id="sync-dot"></div>
+    <span id="sync-text">Not connected</span>
+    <span style="margin-left:auto;display:flex;gap:6px;">
+      <button class="btn btn-ghost" onclick="toggleConfig()" style="padding:4px 11px;font-size:.72rem;">⚙ Config</button>
+      <button class="btn btn-ghost" onclick="loadFromGitHub()" style="padding:4px 11px;font-size:.72rem;">↻ Sync</button>
+    </span>
+  </div>
+
+  <!-- MONTH NAV -->
+  <div class="month-nav">
+    <h2 id="month-title"></h2>
+    <div class="month-tabs">
+      <button class="month-tab" onclick="switchMonth(4)">April</button>
+      <button class="month-tab" onclick="switchMonth(5)">May</button>
+    </div>
+  </div>
+
+  <!-- DAY NAMES -->
+  <div class="cal-header">
+    <div class="cal-dow">SUN</div>
+    <div class="cal-dow">MON</div>
+    <div class="cal-dow">TUE</div>
+    <div class="cal-dow">WED</div>
+    <div class="cal-dow">THU</div>
+    <div class="cal-dow">FRI</div>
+    <div class="cal-dow">SAT</div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="calendar" id="calendar"></div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Completed</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--rest);opacity:.9"></div> Rest day</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div> Missed</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--today)"></div> Today</div>
+  </div>
+
+</div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let currentMonth = new Date().getMonth() + 1;
+const currentYear = 2026;
+const today = new Date();
+const todayStr = formatDate(today);
+
+let appData = { dates: {}, streak: 0, last_completed_date: null };
+let ghConfig = { token: '', user: '', repo: '', file: 'data.json', sha: '' };
+let saveTimer = null;
+
+// ═══════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isToday(s) { return s === todayStr; }
+function isPast(s)  { return s < todayStr; }
+
+function showToast(msg, type='', dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', dur);
+}
+function setStatus(state, msg) {
+  document.getElementById('sync-dot').className = 'dot ' + state;
+  document.getElementById('sync-text').textContent = msg;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATS — total KM, sessions, avg per session
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  const prefix = `${currentYear}-${String(currentMonth).padStart(2,'0')}-`;
+  let totalKm = 0, sessions = 0;
+
+  for (const [dateStr, d] of Object.entries(appData.dates)) {
+    if (!dateStr.startsWith(prefix)) continue;
+    totalKm += parseFloat(d.distance) || 0;
+    if (d.completed) sessions++;
+  }
+
+  document.getElementById('total-km').textContent = totalKm.toFixed(1);
+  document.getElementById('completed-days').textContent = sessions;
+  document.getElementById('avg-km').textContent = sessions > 0
+    ? (totalKm / sessions).toFixed(1) : '0.0';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════
+function loadConfig() {
+  const saved = localStorage.getItem('rp_config');
+  if (saved) {
+    const c = JSON.parse(saved);
+    Object.assign(ghConfig, c);
+    document.getElementById('cfg-token').value = ghConfig.token;
+    document.getElementById('cfg-user').value  = ghConfig.user;
+    document.getElementById('cfg-repo').value  = ghConfig.repo;
+    document.getElementById('cfg-file').value  = ghConfig.file;
+  }
+  if (ghConfig.token && ghConfig.user && ghConfig.repo) {
+    document.getElementById('config-panel').classList.add('hidden');
+  }
+}
+function saveConfig() {
+  ghConfig.token = document.getElementById('cfg-token').value.trim();
+  ghConfig.user  = document.getElementById('cfg-user').value.trim();
+  ghConfig.repo  = document.getElementById('cfg-repo').value.trim();
+  ghConfig.file  = document.getElementById('cfg-file').value.trim() || 'data.json';
+  localStorage.setItem('rp_config', JSON.stringify(ghConfig));
+  document.getElementById('config-panel').classList.add('hidden');
+  showToast('✅ Config saved!', 'success');
+  loadFromGitHub();
+}
+function toggleConfig() {
+  document.getElementById('config-panel').classList.toggle('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GITHUB API
+// ═══════════════════════════════════════════════════════════
+function ghUrl() {
+  return `https://api.github.com/repos/${ghConfig.user}/${ghConfig.repo}/contents/${ghConfig.file}`;
+}
+
+async function getDataFromGitHub() {
+  if (!ghConfig.token) return null;
+  setStatus('loading', 'Fetching data…');
+  try {
+    const res = await fetch(ghUrl(), {
+      headers: { Authorization: `token ${ghConfig.token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (res.status === 404) { setStatus('synced', 'New file — will create on first save'); return null; }
+    if (!res.ok) throw new Error(`GitHub ${res.status}`);
+    const json = await res.json();
+    ghConfig.sha = json.sha;
+    const decoded = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    setStatus('synced', `Synced ${new Date().toLocaleTimeString()}`);
+    return decoded;
+  } catch(e) {
+    setStatus('error', 'Fetch failed: ' + e.message);
+    showToast('❌ ' + e.message, 'error'); return null;
+  }
+}
+
+async function updateDataToGitHub() {
+  if (!ghConfig.token) { showToast('⚠️ Configure GitHub first', 'error'); return; }
+  setStatus('loading', 'Saving…');
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
+  const body = {
+    message: `Update ${todayStr}`, content,
+    committer: { name: 'RunTrack', email: 'runtrack@app.local' }
+  };
+  if (ghConfig.sha) body.sha = ghConfig.sha;
+  try {
+    const res = await fetch(ghUrl(), {
+      method: 'PUT',
+      headers: { Authorization: `token ${ghConfig.token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
+    const json = await res.json();
+    ghConfig.sha = json.content.sha;
+    setStatus('synced', `Saved ${new Date().toLocaleTimeString()}`);
+    showToast('✅ Saved to GitHub', 'success');
+  } catch(e) {
+    setStatus('error', 'Save failed: ' + e.message);
+    showToast('❌ ' + e.message, 'error', 4000);
+  }
+}
+
+async function loadFromGitHub() {
+  const remote = await getDataFromGitHub();
+  if (remote) {
+    appData = remote;
+    if (!appData.dates) appData.dates = {};
+    if (typeof appData.streak !== 'number') appData.streak = 0;
+  }
+  checkMissedDays();
+  updateStreakDisplay();
+  updateStats();
+  renderCalendar();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STREAK LOGIC
+// ═══════════════════════════════════════════════════════════
+function hasWorkout(d) {
+  if (!d) return false;
+  return !!(d.workout || d.description || d.pace || d.distance);
+}
+
+function checkMissedDays() {
+  for (const [dateStr, day] of Object.entries(appData.dates)) {
+    if (isPast(dateStr) && hasWorkout(day) && !day.completed) {
+      appData.streak = 0; appData.last_completed_date = null; return;
+    }
+  }
+}
+
+function calculateStreak(dateStr) {
+  const last = appData.last_completed_date;
+  if (!last) { appData.streak = 1; }
+  else {
+    const diff = Math.round((new Date(dateStr) - new Date(last)) / 86400000);
+    if (diff === 1) appData.streak += 1;
+    else if (diff > 1) appData.streak = 1;
+  }
+  appData.last_completed_date = dateStr;
+}
+
+function uncalculateStreak(dateStr) {
+  if (appData.last_completed_date === dateStr) {
+    const prev = Object.entries(appData.dates)
+      .filter(([d,v]) => v.completed && d < dateStr).map(([d])=>d).sort();
+    if (!prev.length) { appData.streak = 0; appData.last_completed_date = null; }
+    else { appData.last_completed_date = prev[prev.length-1]; recalcStreakFull(); }
+  }
+}
+
+function recalcStreakFull() {
+  const dates = Object.entries(appData.dates)
+    .filter(([,v])=>v.completed).map(([d])=>d).sort();
+  if (!dates.length) { appData.streak = 0; appData.last_completed_date = null; return; }
+  let s = 1;
+  for (let i = dates.length-1; i > 0; i--) {
+    if (Math.round((new Date(dates[i])-new Date(dates[i-1]))/86400000)===1) s++;
+    else break;
+  }
+  appData.streak = s; appData.last_completed_date = dates[dates.length-1];
+}
+
+function updateStreakDisplay() {
+  document.getElementById('streak-count').textContent = appData.streak;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CELL INTERACTIONS
+// ═══════════════════════════════════════════════════════════
+function handleEdit(dateStr, field, value) {
+  if (!appData.dates[dateStr]) appData.dates[dateStr] = {};
+  appData.dates[dateStr][field] = field === 'distance'
+    ? (value ? parseFloat(value) : null) : (value || null);
+  const d = appData.dates[dateStr];
+  if (!hasWorkout(d)) d.completed = false;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(scheduleSave, 1500);
+  updateCellState(dateStr);
+  updateStats(); // live-update totals as user types
+}
+
+function handleCheck(dateStr, checked) {
+  if (!appData.dates[dateStr]) appData.dates[dateStr] = {};
+  appData.dates[dateStr].completed = checked;
+  if (checked) calculateStreak(dateStr); else uncalculateStreak(dateStr);
+  updateStreakDisplay();
+  updateStats();
+  updateCellState(dateStr);
+  scheduleSave();
+}
+
+function scheduleSave() { updateDataToGitHub(); }
+
+function getCellClass(dateStr, d) {
+  let cls = '';
+  if (isToday(dateStr)) cls += ' today';
+  if (!d) return cls + ' rest-day';
+  if (d.completed) return cls + ' completed';
+  if (hasWorkout(d) && isPast(dateStr) && !isToday(dateStr)) return cls + ' missed';
+  if (!hasWorkout(d)) return cls + ' rest-day';
+  return cls;
+}
+
+function updateCellState(dateStr) {
+  const cell = document.querySelector(`[data-date="${dateStr}"]`);
+  if (!cell) return;
+  const d = appData.dates[dateStr];
+  cell.className = 'day-cell' + getCellClass(dateStr, d);
+  const chk = cell.querySelector('.chk');
+  if (chk) chk.checked = !!(d && d.completed);
+  let rl = cell.querySelector('.rest-label');
+  if (!hasWorkout(d)) {
+    if (!rl) {
+      rl = document.createElement('div');
+      rl.className = 'rest-label'; rl.textContent = '— REST —';
+      cell.appendChild(rl);
+    }
+  } else { if (rl) rl.remove(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER CALENDAR
+// ═══════════════════════════════════════════════════════════
+function renderCalendar() {
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  const names = ['','January','February','March','April','May','June',
+                 'July','August','September','October','November','December'];
+  document.getElementById('month-title').textContent = `${names[currentMonth]} ${currentYear}`;
+  document.querySelectorAll('.month-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0&&currentMonth===4)||(i===1&&currentMonth===5));
+  });
+
+  const firstDay    = new Date(currentYear, currentMonth-1, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const e = document.createElement('div'); e.className='day-cell empty'; cal.appendChild(e);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const d = appData.dates[dateStr] || {};
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + getCellClass(dateStr, appData.dates[dateStr]);
+    cell.dataset.date = dateStr;
+    cell.innerHTML = `
+      <div class="day-num">
+        <span>${day}</span>
+        <span class="today-dot"></span>
+      </div>
+      <input type="text"   placeholder="Workout type" value="${d.workout||''}"
+        oninput="handleEdit('${dateStr}','workout',this.value)">
+      <input type="text"   placeholder="Notes" value="${d.description||''}"
+        oninput="handleEdit('${dateStr}','description',this.value)">
+      <div class="input-row">
+        <input type="text"   placeholder="Pace" value="${d.pace||''}" style="max-width:58%"
+          oninput="handleEdit('${dateStr}','pace',this.value)">
+        <input type="number" placeholder="km" value="${d.distance||''}" min="0" step=".1"
+          oninput="handleEdit('${dateStr}','distance',this.value)">
+      </div>
+      ${!hasWorkout(d) ? `<div class="rest-label">— REST —</div>` : ''}
+      <div class="complete-row">
+        <input type="checkbox" class="chk" id="chk-${dateStr}" ${d.completed?'checked':''}
+          onchange="handleCheck('${dateStr}',this.checked)">
+        <label for="chk-${dateStr}">Done ✓</label>
+      </div>`;
+    cal.appendChild(cell);
+  }
+  updateStats();
+}
+
+function switchMonth(m) { currentMonth = m; renderCalendar(); }
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+(function init() {
+  loadConfig();
+  currentMonth = today.getMonth() + 1 === 5 ? 5 : 4;
+  if (ghConfig.token && ghConfig.user && ghConfig.repo) loadFromGitHub();
+  else { setStatus('', 'Configure GitHub to sync data'); renderCalendar(); }
+})();
+</script>
+
+<!--
+══════════════════════════════════════════════════════
+  SETUP GUIDE
+══════════════════════════════════════════════════════
+1. CREATE GITHUB TOKEN
+   github.com → Settings → Developer settings
+   → Personal access tokens → Tokens (classic)
+   → New token → scope: repo → Copy token (ghp_...)
+
+2. CREATE REPO
+   github.com/new → create repo (public or private)
+   → Add file: data.json with content: {}
+   → Commit
+
+3. DEPLOY GITHUB PAGES
+   Repo → Settings → Pages → Source: main / (root) → Save
+
+4. CONFIGURE APP
+   Open app → ⚙ Config → Enter token / username / repo / file → Save
+
+5. USAGE
+   · Fill Workout type / Notes / Pace / km per day cell
+   · Tick "Done ✓" when finished
+   · Stats bar updates live: Total km · Sessions · Avg km/session
+   · Empty day = Rest day (automatic)
+   · Yellow = today  Green = completed  Red = missed
+══════════════════════════════════════════════════════
+-->
+</body>
+</html>
