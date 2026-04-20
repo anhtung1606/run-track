@@ -404,13 +404,13 @@
 
   <!-- DAY NAMES -->
   <div class="cal-header">
-    <div class="cal-dow">SUN</div>
     <div class="cal-dow">MON</div>
     <div class="cal-dow">TUE</div>
     <div class="cal-dow">WED</div>
     <div class="cal-dow">THU</div>
     <div class="cal-dow">FRI</div>
     <div class="cal-dow">SAT</div>
+    <div class="cal-dow">SUN</div>
   </div>
 
   <!-- CALENDAR -->
@@ -694,7 +694,7 @@ function renderCalendar() {
     t.classList.toggle('active', (i===0&&currentMonth===4)||(i===1&&currentMonth===5));
   });
 
-  const firstDay    = new Date(currentYear, currentMonth-1, 1).getDay();
+  const firstDay    = (new Date(currentYear, currentMonth-1, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
@@ -707,8 +707,8 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = 'day-cell' + getCellClass(dateStr, appData.dates[dateStr]);
     cell.dataset.date = dateStr;
-    const dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const dow = new Date(currentYear, currentMonth-1, day).getDay();
+    const dowNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const dow = (new Date(currentYear, currentMonth-1, day).getDay() + 6) % 7;
     cell.innerHTML = `
       <div class="day-num">
         <span><span class="day-dow">${dowNames[dow]} </span>${day}</span>
