@@ -157,7 +157,8 @@
       "distance": 10
     },
     "2026-04-24": {
-      "workout": "Temp"
+      "workout": "easy",
+      "completed": false
     }
   },
   "streak": 0,
