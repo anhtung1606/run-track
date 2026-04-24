@@ -64,7 +64,7 @@
       "workout": "Interval",
       "description": "2km warmup + 5x800m + cooldown",
       "pace": "5:50",
-      "distance": 8
+      "distance": 4
     },
     "2026-04-26": {
       "workout": "Test run",
@@ -152,7 +152,7 @@
     },
     "2026-05-28": {
       "workout": "Test run",
-      "description": "10km giá»¯ HR tháº¥p",
+      "description": "10km giÃ¡Â»Â¯ HR thÃ¡ÂºÂ¥p",
       "pace": "6:00",
       "distance": 10
     }
