@@ -64,7 +64,8 @@
       "workout": "Interval",
       "description": "2km warmup + 5x800m + cooldown",
       "pace": "5:50",
-      "distance": 4
+      "distance": 4,
+      "completed": true
     },
     "2026-04-26": {
       "workout": "Test run",
@@ -163,6 +164,6 @@
       "distance": 6
     }
   },
-  "streak": 0,
-  "last_completed_date": null
+  "streak": 1,
+  "last_completed_date": "2026-04-23"
 }
