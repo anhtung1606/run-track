@@ -159,7 +159,7 @@
     "2026-04-24": {
       "workout": "easy",
       "completed": false,
-      "pace": null,
+      "pace": "6.",
       "distance": 6
     }
   },
