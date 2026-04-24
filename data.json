@@ -158,7 +158,8 @@
     },
     "2026-04-24": {
       "workout": "easy",
-      "completed": false
+      "completed": false,
+      "pace": "6"
     }
   },
   "streak": 0,
