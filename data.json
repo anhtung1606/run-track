@@ -58,7 +58,8 @@
       "workout": "Easy",
       "description": "6km easy",
       "pace": "7:00",
-      "distance": 6
+      "distance": 6,
+      "completed": true
     },
     "2026-04-23": {
       "workout": "Interval",
@@ -165,5 +166,5 @@
     }
   },
   "streak": 1,
-  "last_completed_date": "2026-04-23"
+  "last_completed_date": "2026-04-21"
 }
